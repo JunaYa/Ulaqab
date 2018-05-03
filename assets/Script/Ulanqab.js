@@ -1,4 +1,4 @@
-const ROW_COUNT = 5;
+const ROW_COUNT = 9;
 const COLUMN_COUNT = 5;
 
 cc.Class({
@@ -45,11 +45,10 @@ cc.Class({
     this.margin = tempItemWidth / 2;
     this.chessItemWidth = tempItemWidth;
     this.chessItemHeight = this.chessItemWidth;
-    this.chessBoardWidth = this.chessItemWidth * ROW_COUNT;
+    this.chessBoardWidth = this.chessItemWidth * COLUMN_COUNT; // draw rect
     this.chessBoardHeight = this.chessItemHeight * COLUMN_COUNT;
 
     this.startX = tempItemWidth / 2;
-    this.startY = 2 * tempItemWidth;
     this.node.height = this.chessBoardHeight + 4 * tempItemWidth;
   },
 
@@ -79,27 +78,27 @@ cc.Class({
 
   // draw Chess column
   drawChessColumn(painter) {
+    let center = Math.floor(COLUMN_COUNT / 2);
     for (let i = 0; i < COLUMN_COUNT; i++) {
-      if (i === 2) {
+      if (i === center) {
         let moveX = this.startX + i * this.chessItemWidth + this.margin;
-        let moveY = this.startY + this.margin - 2 * this.chessItemHeight;
+        let moveY = this.startY + this.margin;
         painter.moveTo(moveX, moveY);
         let lineX = this.startX + i * this.chessItemWidth + this.margin;
         let lineY =
           this.startY +
           this.chessBoardHeight -
           this.margin +
-          2 * this.chessItemHeight;
+          4 * this.chessItemHeight;
         painter.lineTo(lineX, lineY);
         painter.stroke();
       } else {
         let moveX = this.startX + i * this.chessItemWidth + this.margin;
-        painter.moveTo(moveX, this.startY + this.margin);
+        let moveY = this.startY + 2 * this.chessItemHeight + this.margin;
+        painter.moveTo(moveX, moveY);
         let lineX = this.startX + i * this.chessItemWidth + this.margin;
-        painter.lineTo(
-          lineX,
-          this.startY + this.chessBoardHeight - this.margin
-        );
+        let lineY = this.startY + this.chessBoardHeight + 2 * this.chessItemHeight - this.margin;
+        painter.lineTo(lineX, lineY);
         painter.stroke();
       }
     }
@@ -107,33 +106,35 @@ cc.Class({
 
   //draw Chess row
   drawChessRow(painter) {
-    for (let i = 0; i < ROW_COUNT; i++) {
+    for (let i = 2; i < ROW_COUNT - 2; i++) {
+      let moveX = this.startX + this.margin;
       let moveY = this.startY + i * this.chessItemHeight + this.margin;
-      painter.moveTo(this.startX + this.margin, moveY);
+      painter.moveTo(moveX, moveY);
+      let lineX = this.startX + this.chessBoardWidth - this.margin;
       let lineY = this.startY + i * this.chessItemHeight + this.margin;
-      painter.lineTo(this.startX + this.chessBoardWidth - this.margin, lineY);
+      painter.lineTo(lineX, lineY);
       painter.stroke();
     }
   },
 
   //draw diagonal let-top
   drawDiagonalLeftTop(painter) {
-    let x0 = this.startX + this.margin;
-    let y0 = this.startY + 2 * this.chessItemHeight + this.margin;
-    painter.moveTo(x0, y0);
-    let x1 = this.startX + 3 * this.chessItemWidth + this.margin;
-    let y1 = this.startY + 5 * this.chessItemHeight + this.margin;
-    painter.lineTo(x1, y1);
+    let moveX = this.startX + this.margin;
+    let moveY = this.startY + 4 * this.chessItemHeight + this.margin;
+    painter.moveTo(moveX, moveY);
+    let lineX = this.startX + 3 * this.chessItemWidth + this.margin;
+    let lineY = this.startY + 7 * this.chessItemHeight + this.margin;
+    painter.lineTo(lineX, lineY);
     painter.stroke();
   },
 
   //draw diagonal let-Bottom
   drawDiagonalLeftBottom(painter) {
     let moveX = this.startX + this.margin;
-    let moveY = this.startY + 2 * this.chessItemHeight + this.margin;
+    let moveY = this.startY + 4 * this.chessItemHeight + this.margin;
     painter.moveTo(moveX, moveY);
     let lineX = this.startX + 3 * this.chessItemWidth + this.margin;
-    let lineY = this.startY - this.chessItemHeight + this.margin;
+    let lineY = this.startY + this.chessItemHeight + this.margin;
     painter.lineTo(lineX, lineY);
     painter.stroke();
   },
@@ -141,10 +142,10 @@ cc.Class({
   //draw diagonal right-top
   drawDiagonalRightTop(painter) {
     let moveX = this.startX + 4 * this.chessItemWidth + this.margin;
-    let moveY = this.startY + 2 * this.chessItemHeight + this.margin;
+    let moveY = this.startY + 4 * this.chessItemHeight + this.margin;
     painter.moveTo(moveX, moveY);
     let lineX = this.startX + this.chessItemWidth + this.margin;
-    let lineY = this.startY + 5 * this.chessItemHeight + this.margin;
+    let lineY = this.startY + 7 * this.chessItemHeight + this.margin;
     painter.lineTo(lineX, lineY);
     painter.stroke();
   },
@@ -152,10 +153,10 @@ cc.Class({
   //draw diagonal right-Bottom
   drawDiagonalRightBottom(painter) {
     let moveX = this.startX + 4 * this.chessItemWidth + this.margin;
-    let moveY = this.startY + 2 * this.chessItemHeight + this.margin;
+    let moveY = this.startY + 4 * this.chessItemHeight + this.margin;
     painter.moveTo(moveX, moveY);
     let lineX = this.startX + this.chessItemWidth + this.margin;
-    let lineY = this.startY - this.chessItemHeight + this.margin;
+    let lineY = this.startY + this.chessItemHeight + this.margin;
     painter.lineTo(lineX, lineY);
     painter.stroke();
   },
@@ -163,10 +164,10 @@ cc.Class({
   //draw top head center line
   drawHeadTopCenter(painter) {
     let moveX = this.startX + this.chessItemWidth + this.margin;
-    let moveY = this.startY + 5 * this.chessItemHeight + this.margin;
+    let moveY = this.startY + 7 * this.chessItemHeight + this.margin;
     painter.moveTo(moveX, moveY);
     let lineX = this.startX + 3 * this.chessItemWidth + this.margin;
-    let lineY = this.startY + 5 * this.chessItemHeight + this.margin;
+    let lineY = this.startY + 7 * this.chessItemHeight + this.margin;
     painter.lineTo(lineX, lineY);
     painter.stroke();
   },
@@ -174,10 +175,10 @@ cc.Class({
   //draw Bottom head center line
   drawHeadBottomCenter(painter) {
     let moveX = this.startX + this.chessItemWidth + this.margin;
-    let moveY = this.startY - this.chessItemHeight + this.margin;
+    let moveY = this.startY + this.chessItemHeight + this.margin;
     painter.moveTo(moveX, moveY);
     let lineX = this.startX + 3 * this.chessItemWidth + this.margin;
-    let lineY = this.startY - this.chessItemHeight + this.margin;
+    let lineY = this.startY + this.chessItemHeight + this.margin;
     painter.lineTo(lineX, lineY);
     painter.stroke();
   },
@@ -185,10 +186,10 @@ cc.Class({
   //draw Top head sede left line
   drawHeadTopSideLeft(painter) {
     let moveX = this.startX + this.chessItemWidth + this.margin;
-    let moveY = this.startY + 5 * this.chessItemHeight + this.margin;
+    let moveY = this.startY + 7 * this.chessItemHeight + this.margin;
     painter.moveTo(moveX, moveY);
     let lineX = this.startX + 2 * this.chessItemWidth + this.margin;
-    let lineY = this.startY + 6 * this.chessItemHeight + this.margin;
+    let lineY = this.startY + 8 * this.chessItemHeight + this.margin;
     painter.lineTo(lineX, lineY);
     painter.stroke();
   },
@@ -196,10 +197,10 @@ cc.Class({
   //draw Top head sede right line
   drawHeadTopSideRight(painter) {
     let moveX = this.startX + 3 * this.chessItemWidth + this.margin;
-    let moveY = this.startY + 5 * this.chessItemHeight + this.margin;
+    let moveY = this.startY + 7 * this.chessItemHeight + this.margin;
     painter.moveTo(moveX, moveY);
     let lineX = this.startX + 2 * this.chessItemWidth + this.margin;
-    let lineY = this.startY + 6 * this.chessItemHeight + this.margin;
+    let lineY = this.startY + 8 * this.chessItemHeight + this.margin;
     painter.lineTo(lineX, lineY);
     painter.stroke();
   },
@@ -207,10 +208,10 @@ cc.Class({
   //draw Bottom head sede left line
   drawHeadBottomSideLeft(painter) {
     let moveX = this.startX + this.chessItemWidth + this.margin;
-    let moveY = this.startY - this.chessItemHeight + this.margin;
+    let moveY = this.startY + this.chessItemHeight + this.margin;
     painter.moveTo(moveX, moveY);
     let lineX = this.startX + 2 * this.chessItemWidth + this.margin;
-    let lineY = this.startY - 2 * this.chessItemHeight + this.margin;
+    let lineY = this.startY + this.margin;
     painter.lineTo(lineX, lineY);
     painter.stroke();
   },
@@ -218,11 +219,13 @@ cc.Class({
   //draw Bottom head side right line
   drawHeadBottomSideRight(painter) {
     let moveX = this.startX + 3 * this.chessItemWidth + this.margin;
-    let moveY = this.startY - this.chessItemHeight + this.margin;
+    let moveY = this.startY + this.chessItemHeight + this.margin;
     painter.moveTo(moveX, moveY);
     let lineX = this.startX + 2 * this.chessItemWidth + this.margin;
-    let lineY = this.startY - 2 * this.chessItemHeight + this.margin;
+    let lineY = this.startY + this.margin;
     painter.lineTo(lineX, lineY);
     painter.stroke();
-  }
+  },
+
+
 });
