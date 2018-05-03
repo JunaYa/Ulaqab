@@ -28,13 +28,15 @@ cc.Class({
   },
 
   // use this for initialization
-  onLoad: function() {
+  onLoad: function () {
     this.initSize();
-    this.drawChestBoard();
+    this.scheduleOnce(() => {
+      this.drawChestBoard();
+    }, 0.5);
   },
 
   // called every frame
-  update: function(dt) {},
+  update: function (dt) { },
 
   initSize() {
     let width = cc.view.getVisibleSizeInPixel().width;
@@ -46,6 +48,7 @@ cc.Class({
     this.chestBoardWidth = this.chestItemWidth * ROW_COUNT;
     this.chestBoardHeight = this.chestItemHeight * COLUMN_COUNT;
 
+    this.startX = tempItemWidth / 2;
     this.startY = 2 * tempItemWidth;
     this.node.height = this.chestBoardHeight + 4 * tempItemWidth;
   },
@@ -58,8 +61,24 @@ cc.Class({
     }
 
     painter.strokeColor = cc.Color.BLACK;
+    painter.lineWidth = 2;
 
-    // draw column
+    this.drawChestRow(painter);
+    this.drawChestColumn(painter);
+    this.drawDiagonalLeftTop(painter);
+    this.drawDiagonalLeftBottom(painter);
+    this.drawDiagonalRightTop(painter);
+    this.drawDiagonalRightBottom(painter);
+    this.drawHeadTopCenter(painter);
+    this.drawHeadBottomCenter(painter);
+    this.drawHeadTopSideLeft(painter);
+    this.drawHeadTopSideRight(painter);
+    this.drawHeadBottomSideLeft(painter);
+    this.drawHeadBottomSideRight(painter);
+  },
+
+  // draw chest column
+  drawChestColumn(painter) {
     for (let i = 0; i < COLUMN_COUNT; i++) {
       if (i === 2) {
         let moveX = this.startX + i * this.chestItemWidth + this.margin;
@@ -84,8 +103,10 @@ cc.Class({
         painter.stroke();
       }
     }
+  },
 
-    //draw row
+  //draw chest row
+  drawChestRow(painter) {
     for (let i = 0; i < ROW_COUNT; i++) {
       let moveY = this.startY + i * this.chestItemHeight + this.margin;
       painter.moveTo(this.startX + this.margin, moveY);
@@ -93,17 +114,6 @@ cc.Class({
       painter.lineTo(this.startX + this.chestBoardWidth - this.margin, lineY);
       painter.stroke();
     }
-
-    this.drawDiagonalLeftTop(painter);
-    this.drawDiagonalLeftBottom(painter);
-    this.drawDiagonalRightTop(painter);
-    this.drawDiagonalRightBottom(painter);
-    this.drawHeadTopCenter(painter);
-    this.drawHeadBottomCenter(painter);
-    this.drawHeadTopSideLeft(painter);
-    this.drawHeadTopSideRight(painter);
-    this.drawHeadBottomSideLeft(painter);
-    this.drawHeadBottomSideRight(painter);
   },
 
   //draw diagonal let-top
