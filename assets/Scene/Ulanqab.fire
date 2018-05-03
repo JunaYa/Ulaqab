@@ -307,8 +307,8 @@
     "_enabled": true,
     "startX": 0,
     "startY": 0,
-    "chestBoardWidth": 0,
-    "chestBoardHeight": 0,
+    "chessBoardWidth": 0,
+    "chessBoardHeight": 0,
     "margin": 0
   },
   {
