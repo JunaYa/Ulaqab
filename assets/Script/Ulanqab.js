@@ -275,8 +275,8 @@ cc.Class({
           return;
         }
         const selectedPiece = e.target;
-        const enableswitchSheepPosition = this.enableswitchSheepPosition(this.currentPiece, selectedPiece);
-        if (enableswitchSheepPosition) {
+        const enableSwitchSheepPosition = this.enableSwitchSheepPosition(this.currentPiece, selectedPiece);
+        if (enableSwitchSheepPosition) {
           this.switchSheepPosition(this.currentPiece, selectedPiece);
           this.currentPiece = undefined;
         }
@@ -327,7 +327,7 @@ cc.Class({
     return role;
   },
 
-  enableswitchSheepPosition(newNode, oldNode) {
+  enableSwitchSheepPosition(newNode, oldNode) {
     let enbale = true;
 
     if (newNode.role === EMPTY) {
