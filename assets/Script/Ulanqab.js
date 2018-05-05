@@ -258,8 +258,29 @@ cc.Class({
     const posY = this.startY + y * this.chessItemHeight + this.margin;
     let piece = cc.instantiate(this.PiecePrefab);
     let pieceComponent = piece.getComponent('Piece');
-    pieceComponent.instancePiece(posX, posY, role);
-
+    pieceComponent.instancePiece(x, y, posX, posY, role);
+    pieceComponent.registerEventCallback(
+      (e) => {
+        // event start
+      },
+      (e) => {
+        // event end
+        if (this.currentPiece === undefined) {
+          const selectedPiece = e.target;
+          if (selectedPiece.role === EMPTY) {
+            return;
+          }
+          this.currentPiece = selectedPiece;
+          return;
+        }
+        console.log(e.target.point);
+        const selectedPiece = e.target;
+        const enableswitchSheepPosition = this.enableswitchSheepPosition(this.currentPiece, selectedPiece);
+        if (enableswitchSheepPosition) {
+          this.switchSheepPosition(this.currentPiece, selectedPiece);
+          this.currentPiece = undefined;
+        }
+      })
     this.node.addChild(piece);
   },
 
@@ -304,5 +325,83 @@ cc.Class({
     }
 
     return role;
-  }
+  },
+
+  enableswitchSheepPosition(newNode, oldNode) {
+    let enbale = true;
+
+    if (newNode.role === EMPTY) {
+      enbale = false;
+    }
+
+    if (newNode.role === oldNode.role) {
+      enbale = false;
+    }
+
+    let diffX = Math.abs(newNode.point.x - oldNode.point.x);
+    let diffY = Math.abs(newNode.point.y - oldNode.point.y);
+
+    if (diffX + diffY > 1) {
+      const allowDiagonal = this.allowDiagonal(newNode, oldNode);
+      console.log(allowDiagonal)
+      if (!allowDiagonal) {
+        enbale = false;
+      }
+    }
+
+    return enbale;
+  },
+
+  switchSheepPosition(newNode, oldNode) {
+    const newX = newNode.x;
+    const newY = newNode.y;
+    const newPoint = newNode.point;
+    const oldPoint = oldNode.point;
+
+    newNode.x = oldNode.x;
+    newNode.y = oldNode.y;
+    oldNode.x = newX;
+    oldNode.y = newY;
+
+    newNode.point = oldPoint;
+    oldNode.point = newPoint;
+  },
+
+  allowDiagonal(newNode, oldNode) {
+    const newPoint = newNode.point;
+    const oldPoint = oldNode.point;
+    const indexNewPoint = diagonalPoints.indexOf(newPoint);
+    const indexOldPoint = diagonalPoints.indexOf(oldPoint);
+    let count = 0;
+    diagonalPoints.forEach(point => {
+      if (newPoint.x === point.x && newPoint.y === point.y) {
+        count += 1;
+      }
+
+      if (oldPoint.x === point.x && oldPoint.y === point.y) {
+        count += 1;
+      }
+    })
+    return count === 2;
+  },
+
+
 });
+
+const diagonalPoints =
+  [
+    { x: 0, y: 4 },
+    { x: 1, y: 1 },
+    { x: 1, y: 3 },
+    { x: 1, y: 5 },
+    { x: 1, y: 7 },
+    { x: 2, y: 0 },
+    { x: 2, y: 2 },
+    { x: 2, y: 6 },
+    { x: 2, y: 8 },
+    { x: 3, y: 1 },
+    { x: 3, y: 3 },
+    { x: 3, y: 5 },
+    { x: 3, y: 7 },
+    { x: 4, y: 4 }
+  ]

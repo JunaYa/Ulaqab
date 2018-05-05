@@ -10,7 +10,7 @@ cc.Class({
 
     properties: {
         role: {
-            default: EMPTY,
+            default: NONE,
             type: cc.Integer,
         },
         x: {
@@ -24,15 +24,21 @@ cc.Class({
     },
 
     start() {
-
     },
 
-    instancePiece(x, y, role) {
-        this.x = x;
-        this.y = y;
+    instancePiece(x, y, posX, posY, role) {
+        const point = {
+            x: x,
+            y: y,
+        }
+        this.node.point = point;
         this.role = role;
-        this.node.x = x;
-        this.node.y = y;
+        this.x = posX;
+        this.y = posY;
+        this.node.x = posX;
+        this.node.y = posY;
+        this.node.role = role;
+
         switch (role) {
             case NONE:
                 break;
@@ -49,7 +55,14 @@ cc.Class({
             default:
                 break;
         }
-    }
+    },
 
+    registerEventCallback(eventStart, eventEnd) {
+        if (this.role === NONE) {
+            return;
+        }
+        this.node.on(cc.Node.EventType.TOUCH_START, eventStart);
+        this.node.on(cc.Node.EventType.TOUCH_END, eventEnd);
+    }
 
 });
