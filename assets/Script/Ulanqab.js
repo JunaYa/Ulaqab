@@ -262,6 +262,7 @@ cc.Class({
     pieceComponent.registerEventCallback(
       (e) => {
         // event start
+        console.log(e.target.point)
       },
       (e) => {
         // event end
@@ -273,7 +274,6 @@ cc.Class({
           this.currentPiece = selectedPiece;
           return;
         }
-        console.log(e.target.point);
         const selectedPiece = e.target;
         const enableswitchSheepPosition = this.enableswitchSheepPosition(this.currentPiece, selectedPiece);
         if (enableswitchSheepPosition) {
@@ -343,8 +343,12 @@ cc.Class({
 
     if (diffX + diffY > 1) {
       const allowDiagonal = this.allowDiagonal(newNode, oldNode);
-      console.log(allowDiagonal)
       if (!allowDiagonal) {
+        enbale = false;
+      }
+    } else {
+      const allowSpecialArea = this.allowSpecialArea(newNode, oldNode);
+      if (allowSpecialArea) {
         enbale = false;
       }
     }
@@ -370,9 +374,10 @@ cc.Class({
   allowDiagonal(newNode, oldNode) {
     const newPoint = newNode.point;
     const oldPoint = oldNode.point;
-    const indexNewPoint = diagonalPoints.indexOf(newPoint);
-    const indexOldPoint = diagonalPoints.indexOf(oldPoint);
     let count = 0;
+    if (newPoint.x === oldPoint.x) {
+      return;
+    }
     diagonalPoints.forEach(point => {
       if (newPoint.x === point.x && newPoint.y === point.y) {
         count += 1;
@@ -381,10 +386,25 @@ cc.Class({
       if (oldPoint.x === point.x && oldPoint.y === point.y) {
         count += 1;
       }
-    })
+    });
     return count === 2;
   },
 
+  allowSpecialArea(newNode, oldNode) {
+    const newPoint = newNode.point;
+    const oldPoint = oldNode.point;
+    let count = 0;
+    restrictedArea.forEach(point => {
+      if (newPoint.x === point.x && newPoint.y === point.y) {
+        count += 1;
+      }
+
+      if (oldPoint.x === point.x && oldPoint.y === point.y) {
+        count += 1;
+      }
+    });
+    return count === 2;
+  },
 
 });
 
@@ -404,4 +424,16 @@ const diagonalPoints =
     { x: 3, y: 5 },
     { x: 3, y: 7 },
     { x: 4, y: 4 }
+  ]
+
+const restrictedArea =
+  [
+    { x: 1, y: 1 },
+    { x: 1, y: 2 },
+    { x: 1, y: 6 },
+    { x: 1, y: 7 },
+    { x: 3, y: 1 },
+    { x: 3, y: 2 },
+    { x: 3, y: 6 },
+    { x: 3, y: 7 },
   ]
