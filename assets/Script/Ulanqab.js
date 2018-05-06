@@ -258,27 +258,37 @@ cc.Class({
     const posY = this.startY + y * this.chessItemHeight + this.margin;
     let piece = cc.instantiate(this.PiecePrefab);
     let pieceComponent = piece.getComponent('Piece');
+    piece.name = `piece-${x}-${y}`;
     pieceComponent.instancePiece(x, y, posX, posY, role);
     pieceComponent.registerEventCallback(
       (e) => {
         // event start
-        console.log(e.target.point)
       },
       (e) => {
         // event end
+        const selectedPiece = e.target;
         if (this.currentPiece === undefined) {
-          const selectedPiece = e.target;
           if (selectedPiece.role === EMPTY) {
             return;
           }
           this.currentPiece = selectedPiece;
           return;
         }
-        const selectedPiece = e.target;
-        const enableSwitchSheepPosition = this.enableSwitchSheepPosition(this.currentPiece, selectedPiece);
+        const allowSwitch = this.allowSwitchPosition(selectedPiece, this.currentPiece);
+        if (!allowSwitch) {
+          return;
+        }
+        const enableSwitchSheepPosition = this.enableSwitchSheepPosition(selectedPiece, this.currentPiece);
         if (enableSwitchSheepPosition) {
-          this.switchSheepPosition(this.currentPiece, selectedPiece);
+          this.switchPosition(selectedPiece, this.currentPiece);
           this.currentPiece = undefined;
+          return;
+        }
+        const enableSwitchWolfPosition = this.enableSwitchWolfPosition(selectedPiece, this.currentPiece);
+        if (enableSwitchWolfPosition) {
+          this.switchPosition(selectedPiece, this.currentPiece);
+          this.currentPiece = undefined;
+          return;
         }
       })
     this.node.addChild(piece);
@@ -327,40 +337,13 @@ cc.Class({
     return role;
   },
 
-  enableSwitchSheepPosition(newNode, oldNode) {
-    let enbale = true;
-
-    if (newNode.role === EMPTY) {
-      enbale = false;
-    }
-
-    if (newNode.role === oldNode.role) {
-      enbale = false;
-    }
-
-    let diffX = Math.abs(newNode.point.x - oldNode.point.x);
-    let diffY = Math.abs(newNode.point.y - oldNode.point.y);
-
-    if (diffX + diffY > 1) {
-      const allowDiagonal = this.allowDiagonal(newNode, oldNode);
-      if (!allowDiagonal) {
-        enbale = false;
-      }
-    } else {
-      const allowSpecialArea = this.allowSpecialArea(newNode, oldNode);
-      if (allowSpecialArea) {
-        enbale = false;
-      }
-    }
-
-    return enbale;
-  },
-
-  switchSheepPosition(newNode, oldNode) {
+  switchPosition(newNode, oldNode) {
     const newX = newNode.x;
     const newY = newNode.y;
     const newPoint = newNode.point;
     const oldPoint = oldNode.point;
+    const newName = newNode.name;
+    const oldName = oldNode.name;
 
     newNode.x = oldNode.x;
     newNode.y = oldNode.y;
@@ -369,6 +352,121 @@ cc.Class({
 
     newNode.point = oldPoint;
     oldNode.point = newPoint;
+
+    newNode.name = oldName;
+    oldNode.name = newName;
+  },
+
+  enableSwitchSheepPosition(newNode, oldNode) {
+    let enable = true;
+
+    if (oldNode.role !== SHEEP) {
+      enable = false;
+    }
+
+    let diffX = Math.abs(newNode.point.x - oldNode.point.x);
+    let diffY = Math.abs(newNode.point.y - oldNode.point.y);
+
+    if (diffX + diffY === 1) {
+      const allowSpecialArea = this.allowSpecialArea(newNode, oldNode);
+      if (allowSpecialArea) {
+        enable = false;
+      }
+    }
+
+    if (diffX + diffY === 2) {
+      const allowDiagonal = this.allowDiagonal(newNode, oldNode);
+      if (!allowDiagonal) {
+        enable = false;
+      }
+    }
+
+    if (diffX + diffY > 2) {
+      enable = false;
+    }
+
+    return enable;
+  },
+
+  enableSwitchWolfPosition(newNode, oldNode) {
+    let enable = true;
+
+    if (oldNode.role !== WOLF) {
+      enable = false;
+    }
+
+    const diffX = Math.abs(newNode.point.x - oldNode.point.x);
+    const diffY = Math.abs(newNode.point.y - oldNode.point.y);
+
+    const diff = diffX + diffY;
+    const allowDiagonal = this.allowDiagonal(newNode, oldNode);
+    const allowSpecialArea = this.allowSpecialArea(newNode, oldNode);
+    switch (diff) {
+      case 1:
+        if (allowSpecialArea) {
+          enable = false;
+        }
+        break;
+      case 2:
+        if (diffX === 0 || diffY === 0) {
+          enable = true;
+          // judge wolf can eat sheep
+          let centerPiece = this.getCenterPiece(newNode, oldNode);
+          if (centerPiece.role === SHEEP) {
+            centerPiece.role = EMPTY;
+          } else {
+            enable = false;
+          }
+        } else {
+          if (!allowDiagonal) {
+            enable = false;
+          }
+        }
+        break;
+      case 3:
+        if (!allowDiagonal) {
+          enable = false;
+        }
+        if ((diffX === 0) || (diffY === 0)) {
+          enable = false;
+        }
+        break;
+      case 4:
+        if (!allowDiagonal) {
+          enable = false;
+        } else {
+          // judge wolf can eat sheep
+          let centerPiece = this.getCenterPiece(newNode, oldNode);
+          if (centerPiece.role === SHEEP) {
+            centerPiece.role = EMPTY;
+          } else {
+            enable = false;
+          }
+        }
+        break;
+      default:
+        enable = false;
+        break;
+    }
+
+    return enable;
+  },
+
+  allowSwitchPosition(newNode, oldNode) {
+    const newRole = newNode.role;
+    const oldRole = oldNode.role;
+
+    let allow = true;
+    if (newRole === oldNode) {
+      allow = false;
+    }
+    if (newRole === WOLF && oldRole === SHEEP) {
+      allow = false;
+    }
+    if (newRole === SHEEP && oldRole === WOLF) {
+      allow = false;
+    }
+    return allow;
   },
 
   allowDiagonal(newNode, oldNode) {
@@ -406,6 +504,33 @@ cc.Class({
     return count === 2;
   },
 
+  getCenterPiece(newNode, oldNode) {
+    const diffXWithDirection = newNode.point.x - oldNode.point.x;
+    const diffYWithDirection = newNode.point.y - oldNode.point.y;
+    const diffX = Math.abs(diffXWithDirection);
+    const diffY = Math.abs(diffYWithDirection);
+    const diff = diffX + diffY;
+    let centerPieceX = 0;
+    let centerPieceY = 0;
+
+    if (diff === 2) {
+      if (diffY === 0) {
+        centerPieceY = newNode.point.y;
+        centerPieceX = newNode.point.x - diffXWithDirection / 2;
+      }
+      if (diffX === 0) {
+        centerPieceX === newNode.point.x;
+        centerPieceY = newNode.point.y - diffYWithDirection / 2;
+      }
+    }
+
+    if (diff === 4) {
+      centerPieceX = newNode.point.x - diffXWithDirection / 2;
+      centerPieceY = newNode.point.y - diffYWithDirection / 2;
+    }
+    const centerPiece = this.node.getChildByName(`piece-${centerPieceX}-${centerPieceY}`);
+    return centerPiece;
+  },
 });
 
 const diagonalPoints =
