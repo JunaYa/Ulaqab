@@ -38,11 +38,16 @@ cc.Class({
         this.node.x = posX;
         this.node.y = posY;
         this.node.role = role;
+        this.setRole(role);
+    },
 
+    setRole(role) {
         switch (role) {
             case NONE:
                 break;
             case EMPTY:
+                this.node.color = cc.Color.WHITE;
+                this.node.opacity = 0;
                 break;
             case WOLF:
                 this.node.color = cc.Color.BLACK;
@@ -55,6 +60,12 @@ cc.Class({
             default:
                 break;
         }
+    },
+
+    placeRole(role) {
+        this.role = role;
+        this.node.role = role;
+        this.setRole(role);
     },
 
     registerEventCallback(eventStart, eventEnd) {
