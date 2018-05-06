@@ -239,6 +239,35 @@ cc.Class({
     painter.stroke();
   },
 
+  onTouchStart(e) { },
+
+  onTouchEnd(e) {
+    const selectedPiece = e.target;
+    if (this.currentPiece === undefined) {
+      if (selectedPiece.role === EMPTY) {
+        return;
+      }
+      this.currentPiece = selectedPiece;
+      return;
+    }
+    const allowSwitch = this.allowSwitchPosition(selectedPiece, this.currentPiece);
+    if (!allowSwitch) {
+      return;
+    }
+    const enableSwitchSheepPosition = this.enableSwitchSheepPosition(selectedPiece, this.currentPiece);
+    if (enableSwitchSheepPosition) {
+      this.switchPosition(selectedPiece, this.currentPiece);
+      this.currentPiece = undefined;
+      return;
+    }
+    const enableSwitchWolfPosition = this.enableSwitchWolfPosition(selectedPiece, this.currentPiece);
+    if (enableSwitchWolfPosition) {
+      this.switchPosition(selectedPiece, this.currentPiece);
+      this.currentPiece = undefined;
+      return;
+    }
+  },
+
   initPiecesLayout() {
     let coordinateArr = [];
     for (let x = 0; x < COLUMN_COUNT; x++) {
@@ -263,33 +292,11 @@ cc.Class({
     pieceComponent.registerEventCallback(
       (e) => {
         // event start
+        this.onTouchStart(e);
       },
       (e) => {
         // event end
-        const selectedPiece = e.target;
-        if (this.currentPiece === undefined) {
-          if (selectedPiece.role === EMPTY) {
-            return;
-          }
-          this.currentPiece = selectedPiece;
-          return;
-        }
-        const allowSwitch = this.allowSwitchPosition(selectedPiece, this.currentPiece);
-        if (!allowSwitch) {
-          return;
-        }
-        const enableSwitchSheepPosition = this.enableSwitchSheepPosition(selectedPiece, this.currentPiece);
-        if (enableSwitchSheepPosition) {
-          this.switchPosition(selectedPiece, this.currentPiece);
-          this.currentPiece = undefined;
-          return;
-        }
-        const enableSwitchWolfPosition = this.enableSwitchWolfPosition(selectedPiece, this.currentPiece);
-        if (enableSwitchWolfPosition) {
-          this.switchPosition(selectedPiece, this.currentPiece);
-          this.currentPiece = undefined;
-          return;
-        }
+        this.onTouchEnd(e);
       })
     this.node.addChild(piece);
   },
@@ -412,11 +419,7 @@ cc.Class({
           enable = true;
           // judge wolf can eat sheep
           let centerPiece = this.getCenterPiece(newNode, oldNode);
-          if (centerPiece.role === SHEEP) {
-            centerPiece.role = EMPTY;
-          } else {
-            enable = false;
-          }
+          enable = this.allowAcrossCenter(centerPiece);
         } else {
           if (!allowDiagonal) {
             enable = false;
@@ -437,11 +440,7 @@ cc.Class({
         } else {
           // judge wolf can eat sheep
           let centerPiece = this.getCenterPiece(newNode, oldNode);
-          if (centerPiece.role === SHEEP) {
-            centerPiece.role = EMPTY;
-          } else {
-            enable = false;
-          }
+          enable = this.allowAcrossCenter(centerPiece);
         }
         break;
       default:
@@ -502,6 +501,15 @@ cc.Class({
       }
     });
     return count === 2;
+  },
+
+  allowAcrossCenter(centerPiece) {
+    let enable = false;
+    if (centerPiece.role === SHEEP) {
+      centerPiece.role = EMPTY;
+      enable = true;
+    }
+    return enable;
   },
 
   getCenterPiece(newNode, oldNode) {
