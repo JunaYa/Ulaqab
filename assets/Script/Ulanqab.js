@@ -249,6 +249,10 @@ cc.Class({
             }
             this.currentPiece = selectedPiece;
             return;
+        } else {
+            if (selectedPiece.role !== EMPTY) {
+                return;
+            }
         }
         const allowSwitch = this.allowSwitchPosition(selectedPiece, this.currentPiece);
         if (!allowSwitch) {
@@ -367,29 +371,26 @@ cc.Class({
     enableSwitchSheepPosition(newNode, oldNode) {
         let enable = true;
 
-        if (oldNode.role !== SHEEP) {
-            enable = false;
-        }
-
         let diffX = Math.abs(newNode.point.x - oldNode.point.x);
         let diffY = Math.abs(newNode.point.y - oldNode.point.y);
 
-        if (diffX + diffY === 1) {
-            const allowSpecialArea = this.allowSpecialArea(newNode, oldNode);
-            if (allowSpecialArea) {
+        const diff = diffX + diffY;
+        switch (diff) {
+            case 1:
+                const allowSpecialArea = this.allowSpecialArea(newNode, oldNode);
+                if (allowSpecialArea) {
+                    enable = false;
+                }
+                break;
+            case 2:
+                const allowDiagonal = this.allowDiagonal(newNode, oldNode);
+                if (!allowDiagonal) {
+                    enable = false;
+                }
+                break;
+            default:
                 enable = false;
-            }
-        }
-
-        if (diffX + diffY === 2) {
-            const allowDiagonal = this.allowDiagonal(newNode, oldNode);
-            if (!allowDiagonal) {
-                enable = false;
-            }
-        }
-
-        if (diffX + diffY > 2) {
-            enable = false;
+                break;
         }
 
         return enable;
@@ -397,10 +398,6 @@ cc.Class({
 
     enableSwitchWolfPosition(newNode, oldNode) {
         let enable = true;
-
-        if (oldNode.role !== WOLF) {
-            enable = false;
-        }
 
         const diffX = Math.abs(newNode.point.x - oldNode.point.x);
         const diffY = Math.abs(newNode.point.y - oldNode.point.y);
@@ -529,7 +526,7 @@ cc.Class({
                 centerPieceX = newNode.point.x - diffXWithDirection / 2;
             }
             if (diffX === 0) {
-                centerPieceX === newNode.point.x;
+                centerPieceX = newNode.point.x;
                 centerPieceY = newNode.point.y - diffYWithDirection / 2;
             }
         }
