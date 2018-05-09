@@ -66,7 +66,7 @@
     "_active": true,
     "_components": [
       {
-        "__id__": 10
+        "__id__": 11
       }
     ],
     "_prefab": null,
@@ -232,6 +232,9 @@
       },
       {
         "__id__": 9
+      },
+      {
+        "__id__": 10
       }
     ],
     "_prefab": null,
@@ -298,23 +301,6 @@
     "_atlas": null
   },
   {
-    "__type__": "280c3rsZJJKnZ9RqbALVwtK",
-    "_name": "",
-    "_objFlags": 0,
-    "node": {
-      "__id__": 6
-    },
-    "_enabled": true,
-    "startX": 0,
-    "startY": 0,
-    "chessBoardWidth": 0,
-    "chessBoardHeight": 0,
-    "margin": 0,
-    "PiecePrefab": {
-      "__uuid__": "9792eb6f-f67c-48f9-b1c6-2df2a752c2bb"
-    }
-  },
-  {
     "__type__": "cc.Widget",
     "_name": "",
     "_objFlags": 0,
@@ -339,6 +325,37 @@
     "_isAbsVerticalCenter": true,
     "_originalWidth": 100,
     "_originalHeight": 100
+  },
+  {
+    "__type__": "29722zL20ZHMqTGgvP+eKzG",
+    "_name": "",
+    "_objFlags": 0,
+    "node": {
+      "__id__": 6
+    },
+    "_enabled": true,
+    "startX": 0,
+    "startY": 0,
+    "chessBoardWidth": 0,
+    "chessBoardHeight": 0,
+    "margin": 0
+  },
+  {
+    "__type__": "280c3rsZJJKnZ9RqbALVwtK",
+    "_name": "",
+    "_objFlags": 0,
+    "node": {
+      "__id__": 6
+    },
+    "_enabled": true,
+    "startX": 0,
+    "startY": 0,
+    "chessBoardWidth": 0,
+    "chessBoardHeight": 0,
+    "margin": 0,
+    "PiecePrefab": {
+      "__uuid__": "9792eb6f-f67c-48f9-b1c6-2df2a752c2bb"
+    }
   },
   {
     "__type__": "cc.Canvas",

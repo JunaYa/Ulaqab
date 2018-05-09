@@ -8,7 +8,7 @@
   "inlineSpriteFrames": true,
   "inlineSpriteFrames_native": true,
   "jailbreakPlatform": false,
-  "md5Cache": false,
+  "md5Cache": true,
   "mergeStartScene": false,
   "oauthLoginServer": "",
   "optimizeHotUpdate": false,
@@ -25,7 +25,7 @@
   "title": "Ulanqab",
   "webOrientation": "auto",
   "wechatgame": {
-    "appid": "wxcbe6528d3439fc28",
+    "appid": "wxe2077e563d047dfa",
     "orientation": "portrait"
   },
   "xxteaKey": "f55eb440-fae1-4c",
