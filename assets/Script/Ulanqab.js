@@ -7,7 +7,7 @@ import {
 
 const ROW_COUNT = 9;
 const COLUMN_COUNT = 5;
-
+const SHEEP_COUNT = 24;
 cc.Class({
     extends: cc.Component,
 
@@ -35,7 +35,16 @@ cc.Class({
         PiecePrefab: {
             default: null,
             type: cc.Prefab,
-        }
+        },
+
+        viewToastNode: {
+            default: null,
+            type: cc.Node,
+        },
+
+        currentHero: true,// 0 : wolf(always first step) 1: sheep
+        otherSheepCount: SHEEP_COUNT,
+
     },
 
     // use this for initialization
@@ -43,7 +52,9 @@ cc.Class({
         this.initSize();
         this.scheduleOnce(() => {
             this.initPiecesLayout();
+            G.residueSheepCount = this.otherSheepCount;
         }, 0.5);
+        this.showToast(this.currentHero ? '请狼出牌' : '请羊出牌');
     },
 
     // called every frame
@@ -63,10 +74,32 @@ cc.Class({
         this.node.height = this.chessBoardHeight + 4 * tempItemWidth;
     },
 
+    showToast(content) {
+        const actionFadeIn = cc.fadeIn(1);
+        this.viewToastNode.runAction(actionFadeIn);
+        const contentlabel = cc.find('content', this.viewToastNode).getComponent(cc.Label);
+        contentlabel.string = content;
+        this.scheduleOnce(() => {
+            const actionFadeOut = cc.fadeOut(1);
+            this.viewToastNode.runAction(actionFadeOut);
+        }, 1);
+    },
+
     onTouchStart(e) { },
 
     onTouchEnd(e) {
         const selectedPiece = e.target;
+        if (!this.currentHero && this.currentPiece === undefined) {
+            if (selectedPiece.role === EMPTY && this.otherSheepCount > 0) {
+                const component = selectedPiece.getComponent('Piece');
+                component.placeRole(SHEEP);
+                this.currentHero = !this.currentHero;
+                this.otherSheepCount -= 1;
+                this.showToast(this.currentHero ? '请狼出牌' : '请羊出牌');
+                G.residueSheepCount = this.otherSheepCount;
+                return;
+            }
+        }
         if (this.currentPiece === undefined) {
             if (selectedPiece.role === EMPTY) {
                 return;
@@ -86,12 +119,16 @@ cc.Class({
         if (enableSwitchSheepPosition) {
             this.switchPosition(selectedPiece, this.currentPiece);
             this.currentPiece = undefined;
+            this.currentHero = !this.currentHero;
+            this.showToast(this.currentHero ? '请狼出牌' : '请羊出牌');
             return;
         }
         const enableSwitchWolfPosition = this.enableSwitchWolfPosition(selectedPiece, this.currentPiece);
         if (enableSwitchWolfPosition) {
             this.switchPosition(selectedPiece, this.currentPiece);
             this.currentPiece = undefined;
+            this.currentHero = !this.currentHero;
+            this.showToast(this.currentHero ? '请狼出牌' : '请羊出牌');
             return;
         }
     },
@@ -127,6 +164,9 @@ cc.Class({
                 this.onTouchEnd(e);
             })
         this.node.addChild(piece);
+        if (role === SHEEP) {
+            this.otherSheepCount -= 1;
+        }
     },
 
     filterRole(x, y) {
