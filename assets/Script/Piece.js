@@ -21,6 +21,10 @@ cc.Class({
             default: 0,
             type: cc.Integer,
         },
+        pieceNode: {
+            default: null,
+            type: cc.Node,
+        },
     },
 
     start() {
@@ -46,14 +50,16 @@ cc.Class({
             case NONE:
                 break;
             case EMPTY:
-                this.node.color = cc.Color.WHITE;
+                this.pieceNode.color = cc.Color.WHITE;
                 this.node.opacity = 0;
                 break;
             case WOLF:
+                this.pieceNode.color = cc.Color.BLACK;
                 this.node.color = cc.Color.BLACK;
                 this.node.opacity = 255;
                 break;
             case SHEEP:
+                this.pieceNode.color = cc.Color.BLUE;
                 this.node.color = cc.Color.BLUE;
                 this.node.opacity = 255;
                 break;
@@ -67,6 +73,14 @@ cc.Class({
         this.node.role = role;
         this.setRole(role);
     },
+
+    activate() {
+        this.node.color = cc.Color.YELLOW;
+    },
+
+    rest() {
+        this.node.color = this.pieceNode.color;
+     },
 
     registerEventCallback(eventStart, eventEnd) {
         if (this.role === NONE) {

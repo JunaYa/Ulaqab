@@ -105,9 +105,13 @@ cc.Class({
                 return;
             }
             this.currentPiece = selectedPiece;
+            this.currentPieceComponent = this.currentPiece.getComponent('Piece');
+            this.currentPieceComponent.activate();
             return;
         } else {
             if (selectedPiece.role !== EMPTY) {
+                this.currentPieceComponent.rest();
+                this.currentPiece = undefined;
                 return;
             }
         }
@@ -118,6 +122,7 @@ cc.Class({
         const enableSwitchSheepPosition = this.enableSwitchSheepPosition(selectedPiece, this.currentPiece);
         if (enableSwitchSheepPosition) {
             this.switchPosition(selectedPiece, this.currentPiece);
+            this.currentPieceComponent.rest();
             this.currentPiece = undefined;
             this.currentHero = !this.currentHero;
             this.showToast(this.currentHero ? '请狼出牌' : '请羊出牌');
@@ -126,6 +131,7 @@ cc.Class({
         const enableSwitchWolfPosition = this.enableSwitchWolfPosition(selectedPiece, this.currentPiece);
         if (enableSwitchWolfPosition) {
             this.switchPosition(selectedPiece, this.currentPiece);
+            this.currentPieceComponent.rest();
             this.currentPiece = undefined;
             this.currentHero = !this.currentHero;
             this.showToast(this.currentHero ? '请狼出牌' : '请羊出牌');
