@@ -89,53 +89,59 @@ cc.Class({
 
     onTouchEnd(e) {
         const selectedPiece = e.target;
-        if (!this.currentHero && this.currentPiece === undefined) {
-            if (selectedPiece.role === EMPTY && this.otherSheepCount > 0) {
-                const component = selectedPiece.getComponent('Piece');
-                component.placeRole(SHEEP);
-                this.currentHero = !this.currentHero;
-                this.otherSheepCount -= 1;
-                this.showToast(this.currentHero ? '请狼出牌' : '请羊出牌');
-                G.residueSheepCount = this.otherSheepCount;
+        if (!this.currentHero) {
+            // sheep step
+            if (this.currentPiece === undefined) {
+                if (selectedPiece.role === EMPTY) {
+                    if (this.otherSheepCount > 0) {
+                        this.addPieceSheep(selectedPiece);
+                        return;
+                    }
+                    return;
+                }
+                if (selectedPiece.role === WOLF) {
+                    return;
+                }
+                this.activePiece(selectedPiece);
                 return;
+            } else {
+                if (selectedPiece.role !== EMPTY) {
+                    this.restPiece();
+                    return;
+                }
+                const allowSwitch = this.allowSwitchPosition(selectedPiece, this.currentPiece);
+                if (!allowSwitch) {
+                    return;
+                }
+                const enableSwitchSheepPosition = this.enableSwitchSheepPosition(selectedPiece, this.currentPiece);
+                if (!enableSwitchSheepPosition) {
+                    return;
+                }
+                this.switchPosition(selectedPiece, this.currentPiece);
             }
-        }
-        if (this.currentPiece === undefined) {
-            if (selectedPiece.role === EMPTY) {
-                return;
-            }
-            this.currentPiece = selectedPiece;
-            this.currentPieceComponent = this.currentPiece.getComponent('Piece');
-            this.currentPieceComponent.activate();
-            return;
         } else {
-            if (selectedPiece.role !== EMPTY) {
-                this.currentPieceComponent.rest();
-                this.currentPiece = undefined;
+            // wolf step
+            if (this.currentPiece === undefined) {
+                if (selectedPiece.role !== WOLF) {
+                    return;
+                }
+                this.activePiece(selectedPiece);
                 return;
+            } else {
+                if (selectedPiece.role !== EMPTY) {
+                    this.restPiece();
+                    return;
+                }
+                const allowSwitch = this.allowSwitchPosition(selectedPiece, this.currentPiece);
+                if (!allowSwitch) {
+                    return;
+                }
+                const enableSwitchWolfPosition = this.enableSwitchWolfPosition(selectedPiece, this.currentPiece);
+                if (!enableSwitchWolfPosition) {
+                    return;
+                }
+                this.switchPosition(selectedPiece, this.currentPiece);
             }
-        }
-        const allowSwitch = this.allowSwitchPosition(selectedPiece, this.currentPiece);
-        if (!allowSwitch) {
-            return;
-        }
-        const enableSwitchSheepPosition = this.enableSwitchSheepPosition(selectedPiece, this.currentPiece);
-        if (enableSwitchSheepPosition) {
-            this.switchPosition(selectedPiece, this.currentPiece);
-            this.currentPieceComponent.rest();
-            this.currentPiece = undefined;
-            this.currentHero = !this.currentHero;
-            this.showToast(this.currentHero ? '请狼出牌' : '请羊出牌');
-            return;
-        }
-        const enableSwitchWolfPosition = this.enableSwitchWolfPosition(selectedPiece, this.currentPiece);
-        if (enableSwitchWolfPosition) {
-            this.switchPosition(selectedPiece, this.currentPiece);
-            this.currentPieceComponent.rest();
-            this.currentPiece = undefined;
-            this.currentHero = !this.currentHero;
-            this.showToast(this.currentHero ? '请狼出牌' : '请羊出牌');
-            return;
         }
     },
 
@@ -236,6 +242,11 @@ cc.Class({
 
         newNode.name = oldName;
         oldNode.name = newName;
+
+        this.currentPieceComponent.rest();
+        this.currentPiece = undefined;
+        this.currentHero = !this.currentHero;
+        this.showToast(this.currentHero ? '请狼出牌' : '请羊出牌');
     },
 
     enableSwitchSheepPosition(newNode, oldNode) {
@@ -418,6 +429,25 @@ cc.Class({
         this.deadSheepCount += 1;
     },
 
+    addPieceSheep(selectedPiece) {
+        const component = selectedPiece.getComponent('Piece');
+        component.placeRole(SHEEP);
+        this.currentHero = !this.currentHero;
+        this.otherSheepCount -= 1;
+        this.showToast(this.currentHero ? '请狼出牌' : '请羊出牌');
+        G.residueSheepCount = this.otherSheepCount;
+    },
+
+    activePiece(selectedPiece) {
+        this.currentPiece = selectedPiece;
+        this.currentPieceComponent = this.currentPiece.getComponent('Piece');
+        this.currentPieceComponent.activate();
+    },
+
+    restPiece() {
+        this.currentPieceComponent.rest();
+        this.currentPiece = undefined;
+    },
 });
 
 const diagonalPoints =
